@@ -3,23 +3,36 @@
 class MarvelService {
     _apiBase = 'https://gateway.marvel.com:443/v1/public/'
     _apiKey = 'apikey=138b2936cc7005e1831cd8801a375bb2'
-        getResourse = async (url) => {
-            let res = await fetch(url)
 
-            if (!res.ok) {
-                throw new Error(`Could not featch ${url}, status: ${res.status}`)
-            }
-
-            return await res.json();
+    getResource = async (url) => {
+        let res = await fetch(url);
+    
+        if (!res.ok) {
+            throw new Error(`Could not fetch ${url}, status: ${res.status}`);
         }
+    
+        return await res.json();
+    }
 
-        getAllCharacters = () => {
-            return this.getResourse(`${this._apiBase}characters?limit=9&offset=210&${this._apiKey}`)
-        }
+    getAllCharacters = async () => {
+        const res = await this.getResource(`${this._apiBase}characters?limit=9&offset=210&${this._apiKey}`);
+        return res.data.results.map(this._transformCharacter);
+    }
 
-        getCharacter = (id) => {
-            return this.getResourse(`${this._apiBase}characters/${id}?${this._apiKey}`)
+    getCharacter = async (id) => {
+        const res = await this.getResource(`${this._apiBase}characters/${id}?${this._apiKey}`);
+        return this._transformCharacter(res.data.results[0]);
+    }
+
+    _transformCharacter = (char) => {
+        return {
+            name: char.name,
+            description: char.description ? char.description.slice(0, 170) + '...': "Описание персонажа не найдено",
+            thumbnail: char.thumbnail.path + '.' + char.thumbnail.extension,
+            homepage: char.urls[0].url,
+            wiki: char.urls[1].url
         }
+    }
 }
 
-export default MarvelService
+export default MarvelService;
