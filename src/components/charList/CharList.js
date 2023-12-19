@@ -5,7 +5,9 @@ import Spinner from '../spinner/spinner';
 import ErrorMesage from '../errorMessage/errorMesage';
 
 class CharList extends Component {
-
+    constructor(props) {
+        super(props)
+    }
     state = {
         char: {},
         loading: true,
@@ -19,9 +21,12 @@ class CharList extends Component {
     }
 
     componentWillUnmount(){
-
+        
     }
 
+    onCharSelected = (id) => {
+        this.props.onCharSelected(id)
+    }
     onCharLoaded = (char) => {
         this.setState({char, loading: false})
     }
@@ -40,10 +45,10 @@ class CharList extends Component {
 
 
         render() {
-            const {char, loading, error} = this.state
+            const {char, loading, error, onCharSelected} = this.state
             const errorMesage = error ? <ErrorMesage/> : null
             const spinner = loading ? <Spinner/> : null
-            const content = !(loading || error) ? <View char={char}/> : null
+            const content = !(loading || error) ? <View char={char} charId={this.onCharSelected}/> : null
             return (
                 <div className="char__list">
                     <ul className="char__grid">
@@ -60,12 +65,14 @@ class CharList extends Component {
     }
 
 
-    const View = ({char}) => {
-
-        const charList = char.map((item, index) => {
+    const View = ({char, charId}) => {
+        
+        const charList = char.map((item) => {
+            const objectFit = item.thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg' ? {objectFit: 'unset'} : null
             return (
-                <li className="char__item" key={index}>
-                <img src={item.thumbnail} alt={item.name}/>
+                <li className="char__item" key={item.id}
+                onClick={()=> charId(item.id)}>
+                <img src={item.thumbnail} alt={item.name} style={objectFit}/>
                 <div className="char__name">{item.name}</div>
             </li>
             )
